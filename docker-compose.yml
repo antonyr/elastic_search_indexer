@@ -1,0 +1,7 @@
+version: '3'
+services:
+  indexer:
+    tty: true
+    stdin_open: true
+    build: .
+    command: 'ruby index_table.rb'
