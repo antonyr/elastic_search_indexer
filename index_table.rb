@@ -30,7 +30,13 @@ DB = Sequel.connect(adapter: :mysql2, user: ENV['DB_USER'],
 ds = DB.from(ENV['TABLE_NAME'])
 data_set = ds.extension(:pagination)
 
-Elasticsearch::Model.client = Elasticsearch::Client.new url: "http://#{ENV['ELASTIC_USERNAME']}:#{URI.escape(ENV['ELASTIC_PASSWORD'], '@')}@#{ENV['ELASTICSEARCH_HOST']}"
+if ENV['ELASTIC_USERNAME'].empty?
+  credentials = ''
+else
+  credentials = "#{ENV['ELASTIC_USERNAME']}:#{URI.escape(ENV['ELASTIC_PASSWORD'], '@')}@"
+end
+
+Elasticsearch::Model.client = Elasticsearch::Client.new url: "http://#{credentials}#{ENV['ELASTICSEARCH_HOST']}"
 
 data_set.each_page(ENV['PAGE_SIZE'].to_i) do |row|
   post_result = Elasticsearch::Model.client.bulk(
